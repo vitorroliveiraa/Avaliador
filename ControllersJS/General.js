@@ -1,0 +1,4 @@
+﻿$(function () {
+    $.ajax({        url: "Default.aspx/loadMunicipio",        data: "{}",        dataType: "json",        type: "POST",        contentType: "application/json; charset=utf-8",        success: function (data) {            $("#sleMunicipio").empty();            $("#sleMunicipio").append($("<option></option>").val("").html("─ SELECIONE ─"));            $.each(data.d, function () {                $("#sleMunicipio").append(                    $("<option></option>").val(                        this['Value']).html(this['Text'])                );            });
+            //$("#divLoading").css("display", "none");        }    });
+});

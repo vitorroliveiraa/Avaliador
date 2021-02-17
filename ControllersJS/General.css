@@ -1,0 +1,64 @@
+﻿.bi-search::before {
+    margin-bottom: 1.5px;
+}
+
+.bi-scissors::before {
+    margin-bottom: 1px;
+    font-size: 20px;
+}
+
+.bi-check-circle-fill::before {
+    font-size: 16px;
+    margin-bottom: 2px;
+}
+
+.bi-arrow-clockwise::before {
+    font-size: 19px;
+}
+
+.btn-light:hover {
+    border-color: rgb(247 247 247) !important;
+}
+
+.btn-light:hover {
+    border-color: rgb(247 247 247) !important;
+}
+
+.w-80 {
+    width: 80% !important;
+}
+
+.w-65 {
+    width: 65%;
+}
+
+.divider-t {
+    border-top: 1px solid #DFDFDF;
+    margin-top: 15px;
+    padding-top: 10px;
+}
+
+.divider-b {
+    border-bottom: 1px solid #DFDFDF;
+    padding-bottom: 1rem;
+}
+
+.divider-eqp {
+    border-top: 1px solid rgb(0 0 0 / 13%);
+    margin-right: auto;
+    margin-left: auto;
+}
+
+#btnSaveEdition {
+    float: right;
+}
+
+#btnUpdateImage {
+    float: right;
+    margin-left: 3px;
+}
+
+.pl-pr-2r {
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
