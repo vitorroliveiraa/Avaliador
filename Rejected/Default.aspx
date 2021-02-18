@@ -38,11 +38,11 @@
                             </div>
 
                             <div class="p-1">
-                                <button type="button" class="btn btn-outline-secondary"
-                                    id="btnEqp">
+                                <button type="button" class="btn btn-secondary"
+                                    id="btnEqp" onclick="editEqp()">
                                     Equipamento
                                 </button>
-                                <button type="button" class="btn btn-outline-primary"
+                                <button type="button" class="btn btn-primary"
                                     id="btnSearch">
                                     Pesquisar
                                 </button>
@@ -187,12 +187,47 @@
         </div>
     </div>
 
+    <div class="modal fade" id="modalEqp">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Equipamentos</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <ul class="ks-cboxtags mb-0" id="ulEqps">
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div style="width: 90%; margin-right: 0;">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="customSwitch1">
+                            <label class="custom-control-label" for="customSwitch1">Todos</label>
+                        </div>
+                        <%--<div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="chkAll"
+                                onclick="markAll()">
+                            <label class="custom-control-label" for="chkAll">Todos</label>
+                        </div>--%>
+                    </div>
+
+                    <button type="button" class="btn btn-primary">Plicar</button>
+                    <%--<button type="button" class="btn btn-outline-secondary"
+                        data-dismiss="modal">
+                        Fechar</button>--%>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="../ControllersJS/General.js"></script>
 
     <script>
         $(function () {
-            //$.ajax({            //    url: "Default.aspx/loadMunicipio",            //    data: "{}",            //    dataType: "json",            //    type: "POST",            //    contentType: "application/json; charset=utf-8",            //    success: function (data) {            //        $("#sleMunicipio").empty();            //        $("#sleMunicipio").append($("<option></option>").val('').html(''));            //        $.each(data.d, function () {            //            $("#sleMunicipio").append($("<option></option>").val(this['Value']).html(this['Text']));            //        });
-            //        //$("#divLoading").css("display", "none");            //    }            //});
         });
 
         //#region close/open panels
@@ -270,6 +305,76 @@
             $("#dvSearchLote").hide();
             $("#dvDateStarEnd").show();
             $("#txtLote").val("");
+        }
+
+        function editEqp() {
+
+            if ($("#sleMunicipio").val() == "") {
+
+                Swal.fire({
+                    text: 'Selecione um município!',
+                    showClass: {
+                        popup: 'animate__bounceIn'
+                    },
+                    hideClass: {
+                        popup: 'animate__flipOutX'
+                    }
+                });
+
+                return;
+            }
+
+            $("#divLoading").css("display", "block");
+            $("#ulEqps").empty();
+            $.ajax({
+                type: 'POST',
+                url: 'Default.aspx/editEqps',
+                dataType: 'json',
+                data: "{'idMunicipio':'" + $("#sleMunicipio").val() + "'}",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    var i = 0;
+                    while (data.d[i]) {
+                        var lst = data.d[i];
+                        var permission = "";
+
+                        permission += `<li> 
+                                       <input type='checkbox' id='chk${lst.Value}'
+                                       onchange='' value='${lst.Value}' checked>
+                                       <label for='chk${lst.Value}'>${lst.Value}</label>
+                                       </li>`;
+
+                        $("#ulEqps").append(permission);
+
+                        i++;
+                    }
+
+                    $("#divLoading").css("display", "none");
+                    $("#modalEqp").modal("show");
+                },
+                error: function (data) {
+                    $("#divLoading").css("display", "none");
+                    Swal.fire({
+                        text: 'Ocorreu algum erro, atualize novamente!',
+                        showClass: {
+                            popup: 'animate__bounceIn'
+                        },
+                        hideClass: {
+                            popup: 'animate__flipOutX'
+                        }
+                    });
+                }
+            });
+        }
+
+        function markAll() {
+
+            //var ul = $("#ulEqps");
+            //ul.find('li').each(function (i, el) {
+            //    var li = $(this).find('li')
+
+            //}
         }
     </script>
 </asp:Content>

@@ -38,5 +38,26 @@ namespace Avaliador.Rejected
 
             return lst;
         }
+
+        [WebMethod]
+        public static ArrayList editEqps(string idMunicipio)
+        {
+            ArrayList lst = new ArrayList();
+            Banco db = new Banco();
+
+            DataTable dt = db.ExecuteReaderQuery(
+                @"SELECT Serie FROM dbo.Eqp WHERE Mnc=" + idMunicipio + " ORDER BY Serie"
+                );
+
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                lst.Add(new ListItem(
+                    dr["Serie"].ToString()
+                    ));
+            }
+
+            return lst;
+        }
     }
 }
