@@ -221,6 +221,7 @@
                             <div class="row row-cols-3 divider-eqp">
                                 <div class="col input-group-sm pl-0">
                                     <label class="mb-0 mt-1">Vel. Medida:</label>
+                                    <br />
                                     <label class="mb-1" id="lblVelMedida">48</label>
                                 </div>
                                 <div class="col input-group-sm pl-0 pr-0">

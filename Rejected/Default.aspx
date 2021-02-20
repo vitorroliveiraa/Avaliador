@@ -39,11 +39,11 @@
 
                             <div class="p-1">
                                 <button type="button" class="btn btn-secondary"
-                                    id="btnEqp" onclick="editEqp()">
+                                    id="btnEqp" onclick="editEqp(this)" value="btn">
                                     Equipamento
                                 </button>
                                 <button type="button" class="btn btn-primary"
-                                    id="btnSearch">
+                                    id="btnSearch" onclick="searchEqp()">
                                     Pesquisar
                                 </button>
                             </div>
@@ -81,7 +81,8 @@
                     <h5 class="card-header" style="padding: 0.3rem;">
                         <div class="row pl-pr-2r">
                             <label class="mb-0 align-self-center mr-1">Município:</label>
-                            <select class="form-control w-50" id="sleMunicipio">
+                            <select class="form-control w-50" id="sleMunicipio" onchange="editEqp(this)"
+                                value="sle">
                             </select>
                         </div>
                     </h5>
@@ -112,11 +113,11 @@
                                     <label class="mb-0 mt-1">Faixa:</label>
                                     <br />
                                     <label class="mb-0" id="lblFaixa"></label>
-                                    <%--<input type="text" class="form-control" id="txtFaixa" disabled>--%>
                                 </div>
                                 <div class="col input-group-sm">
                                     <label class="mb-0 mt-1">Velocidade da via:</label>
-                                    <label class="mb-0" id="lblVelocidadeViaEqp">Km/h</label>
+                                    <br />
+                                    <label class="mb-0" id="lblVelocidadeViaEqp"></label>
                                 </div>
                             </div>
                         </div>
@@ -129,38 +130,39 @@
                         <div class="card-body p-2">
                             <div class="input-group-sm">
                                 <label class="mb-1">Data:</label>
-                                <label class="mb-1">05/02/2021 19:43:57.000</label>
+                                <label class="mb-1" id="dtHrEnquadramento"></label>
                             </div>
 
                             <div class="row row-cols-3 divider-eqp">
                                 <div class="col input-group-sm pl-0">
                                     <label class="mb-0 mt-1">Vel. Medida:</label>
                                     <br />
-                                    <label class="mb-1" id="lblVelMedida">48</label>
+                                    <label class="mb-1" id="lblVelMedida"></label>
                                 </div>
                                 <div class="col input-group-sm pl-0 pr-0">
                                     <label class="mb-0 mt-1">Vel. Considerada:</label>
-                                    <label class="mb-1" id="lblVelConsiderada">41</label>
+                                    <label class="mb-1" id="lblVelConsiderada"></label>
                                 </div>
                                 <div class="col input-group-sm pr-0">
                                     <label class="mb-0 mt-1">Tam. Veículo:</label>
-                                    <label class="mb-1" id="lblTamanhoVeiculo">0000</label>
+                                    <label class="mb-1" id="lblTamanhoVeiculo"></label>
                                 </div>
                             </div>
                             <div class="row row-cols-3 divider-eqp">
                                 <div class="col input-group-sm pl-0">
                                     <label class="mb-0 mt-1">Tempo SV:</label>
-                                    <label class="mb-0 mt-0" id="lblTempoSV">0</label>
+                                    <br />
+                                    <label class="mb-0 mt-0" id="lblTempoSV"></label>
                                 </div>
                                 <div class="col input-group-sm pl-0 pr-0">
                                     <label class="mb-0 mt-1">Tempo Ocup.:</label>
-                                    <label class="mb-0 mt-0" id="lblTempoOcup">0</label>
+                                    <label class="mb-0 mt-0" id="lblTempoOcup"></label>
                                 </div>
                                 <div class="col input-group-sm pr-0">
                                     <label class="mb-0 mt-1 font-weight-bold" style="color: rgb(220 53 69);">Lote:</label>
-                                    <label class="mb-0 mt-0 font-weight-bold"
-                                        style="color: rgb(220 53 69);" id="lblLote">
-                                        00709
+                                    <br />
+                                    <label class="mb-0 mt-0 font-weight-bold" style="color: rgb(220 53 69);"
+                                        id="lblLote">
                                     </label>
                                 </div>
                             </div>
@@ -203,10 +205,11 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <div style="width: 90%; margin-right: 0;">
+                    <div style="width: 88%; margin-right: 0;">
                         <div class="custom-control custom-switch">
-                            <input type="checkbox" class="custom-control-input" id="customSwitch1">
-                            <label class="custom-control-label" for="customSwitch1">Todos</label>
+                            <input type="checkbox" class="custom-control-input" id="chkAll"
+                                onclick="markAll()" checked>
+                            <label class="custom-control-label" for="chkAll">Todos</label>
                         </div>
                         <%--<div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input" id="chkAll"
@@ -215,7 +218,7 @@
                         </div>--%>
                     </div>
 
-                    <button type="button" class="btn btn-primary">Plicar</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Aplicar</button>
                     <%--<button type="button" class="btn btn-outline-secondary"
                         data-dismiss="modal">
                         Fechar</button>--%>
@@ -227,6 +230,9 @@
     <script src="../ControllersJS/General.js"></script>
 
     <script>
+        var eqpsSelecteds = [];
+        var listImagesRejecteds = [];
+        var indexImageRejected = 0;
         $(function () {
         });
 
@@ -307,56 +313,14 @@
             $("#txtLote").val("");
         }
 
-        function editEqp() {
+        function editEqp(value) {
 
-            if ($("#sleMunicipio").val() == "") {
+            if (value.id == "btnEqp") {
 
-                Swal.fire({
-                    text: 'Selecione um município!',
-                    showClass: {
-                        popup: 'animate__bounceIn'
-                    },
-                    hideClass: {
-                        popup: 'animate__flipOutX'
-                    }
-                });
+                if ($("#sleMunicipio").val() == "") {
 
-                return;
-            }
-
-            $("#divLoading").css("display", "block");
-            $("#ulEqps").empty();
-            $.ajax({
-                type: 'POST',
-                url: 'Default.aspx/editEqps',
-                dataType: 'json',
-                data: "{'idMunicipio':'" + $("#sleMunicipio").val() + "'}",
-                contentType: "application/json; charset=utf-8",
-                success: function (data) {
-
-                    var i = 0;
-                    while (data.d[i]) {
-                        var lst = data.d[i];
-                        var permission = "";
-
-                        permission += `<li> 
-                                       <input type='checkbox' id='chk${lst.Value}'
-                                       onchange='' value='${lst.Value}' checked>
-                                       <label for='chk${lst.Value}'>${lst.Value}</label>
-                                       </li>`;
-
-                        $("#ulEqps").append(permission);
-
-                        i++;
-                    }
-
-                    $("#divLoading").css("display", "none");
-                    $("#modalEqp").modal("show");
-                },
-                error: function (data) {
-                    $("#divLoading").css("display", "none");
                     Swal.fire({
-                        text: 'Ocorreu algum erro, atualize novamente!',
+                        text: 'Selecione um município!',
                         showClass: {
                             popup: 'animate__bounceIn'
                         },
@@ -364,17 +328,253 @@
                             popup: 'animate__flipOutX'
                         }
                     });
+
+                    return;
                 }
-            });
+
+                $("#ulEqps").empty();
+                $.ajax({
+                    type: 'POST',
+                    url: 'Default.aspx/editEqps',
+                    dataType: 'json',
+                    data: "{'idMunicipio':'" + $("#sleMunicipio").val() + "'}",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+
+                        $("#divLoading").css("display", "block");
+
+                        var i = 0;
+                        while (data.d[i]) {
+                            var lst = data.d[i];
+                            var permission = "";
+
+                            permission += `<li> 
+                                       <input type='checkbox' id='chk${lst.Value}'
+                                       onchange='addOrRemoveEqp(this)' value='${lst.Value}' checked>
+                                       <label for='chk${lst.Value}'>${lst.Value}</label>
+                                       </li>`;
+
+                            $("#ulEqps").append(permission);
+                            eqpsSelecteds.push(lst.Value);
+
+                            i++;
+                        }
+
+                        $("#divLoading").css("display", "none");
+                        $("#modalEqp").modal("show");
+                    },
+                    error: function (data) {
+                        $("#divLoading").css("display", "none");
+                        Swal.fire({
+                            text: 'Ocorreu algum erro, atualize a página novamente!',
+                            showClass: {
+                                popup: 'animate__bounceIn'
+                            },
+                            hideClass: {
+                                popup: 'animate__flipOutX'
+                            }
+                        });
+                    }
+                });
+            }
+            else {
+
+                if ($("#sleMunicipio").val() == "") {
+
+                    Swal.fire({
+                        text: 'Selecione um município!',
+                        showClass: {
+                            popup: 'animate__bounceIn'
+                        },
+                        hideClass: {
+                            popup: 'animate__flipOutX'
+                        }
+                    });
+
+                    return;
+                }
+
+                $("#ulEqps").empty();
+                $.ajax({
+                    type: 'POST',
+                    url: 'Default.aspx/editEqps',
+                    dataType: 'json',
+                    data: "{'idMunicipio':'" + $("#sleMunicipio").val() + "'}",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+
+                        $("#divLoading").css("display", "block");
+
+                        var i = 0;
+                        while (data.d[i]) {
+                            var lst = data.d[i];
+                            var permission = "";
+
+                            permission += `<li> 
+                                       <input type='checkbox' id='chk${lst.Value}'
+                                       onchange='addOrRemoveEqp(this)' value='${lst.Value}' checked>
+                                       <label for='chk${lst.Value}'>${lst.Value}</label>
+                                       </li>`;
+
+                            $("#ulEqps").append(permission);
+                            eqpsSelecteds.push(lst.Value);
+
+                            i++;
+                        }
+
+                        $("#divLoading").css("display", "none");
+                    },
+                    error: function (data) {
+                        $("#divLoading").css("display", "none");
+                        Swal.fire({
+                            text: 'Ocorreu algum erro, atualize a página novamente!',
+                            showClass: {
+                                popup: 'animate__bounceIn'
+                            },
+                            hideClass: {
+                                popup: 'animate__flipOutX'
+                            }
+                        });
+                    }
+                });
+            }
         }
 
         function markAll() {
 
-            //var ul = $("#ulEqps");
-            //ul.find('li').each(function (i, el) {
-            //    var li = $(this).find('li')
+            var ul = $("#ulEqps");
+            ul.find('li').each(function (i, el) {
+                var li = $(this).find('li').prevObject[0];
+                var eqpValue = "";
 
-            //}
+                if ($("#chkAll")[0].checked) {
+                    li.childNodes[1].checked = true;
+                    eqpValue = li.childNodes[1].defaultValue;
+                    eqpsSelecteds.push(eqpValue);
+                }
+                else {
+                    li.childNodes[1].checked = false;
+                    eqpsSelecteds = [];
+                }
+            });
+        }
+
+        function addOrRemoveEqp(value) {
+
+            var equipament = value.defaultValue;
+            if (value.checked) {
+                eqpsSelecteds.push(equipament);
+                if (eqpsSelecteds.length == $("#ulEqps")[0].childNodes.length) {
+                    $("#chkAll")[0].checked = true;
+                }
+            }
+            else {
+                const index = eqpsSelecteds.indexOf(equipament);
+                if (index > -1) {
+                    eqpsSelecteds.splice(index, 1);
+                    $("#chkAll")[0].checked = false;
+                }
+            }
+        }
+
+        function searchEqp() {
+
+            if ($("#rdoLote")[0].checked) {
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'Default.aspx/searchEqp',
+                    dataType: 'json',
+                    data: JSON.stringify({
+                        lote: $("#txtLote").val(),
+                        eqpsSelecteds: eqpsSelecteds
+                    }),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+
+                        $("#divLoading").css("display", "block");
+                        var i = 0;
+                        while (data.d[i]) {
+                            var lst = data.d[i];
+
+                            let imagesRejecteds = {
+                                "eqp": lst.eqp,
+                                "faixa": lst.faixa,
+                                "velMedida": lst.velMedida,
+                                "velCons": lst.velCons,
+                                "velVia": lst.velVia,
+                                "tempoSV": lst.tempoSV,
+                                "dtProcess": lst.dtProcess,
+                                "logradouro": lst.logradouro,
+                                "tOcup": lst.tOcup,
+                                "tamanho": lst.tamanho,
+                                "agente": lst.agente,
+                                "motivo": lst.motivo,
+                                "obs": lst.obs,
+                                "arquivo": lst.arquivo
+                            }
+
+                            listImagesRejecteds.push(imagesRejecteds);
+                            i++;
+                        }
+
+                        var firstIndex = listImagesRejecteds[0];
+                        $("#lblEquipamento")[0].innerHTML = firstIndex.eqp;
+                        $("#lblMunicipio")[0].innerHTML = $("#sleMunicipio").find(":selected").text();
+                        $("#lblEndereco")[0].innerHTML = "Endereço: " + firstIndex.logradouro;
+                        $("#lblFaixa")[0].innerHTML = firstIndex.faixa;
+                        $("#lblVelocidadeViaEqp")[0].innerHTML = firstIndex.velVia + "km/h";
+
+                        $("#dtHrEnquadramento")[0].innerHTML = firstIndex.dtProcess;
+                        $("#lblVelMedida")[0].innerHTML = firstIndex.velMedida;
+                        $("#lblVelConsiderada")[0].innerHTML = firstIndex.velCons;
+                        $("#lblTamanhoVeiculo")[0].innerHTML = firstIndex.tamanho;
+                        $("#lblTempoSV")[0].innerHTML = firstIndex.tempoSV;
+                        $("#lblTempoOcup")[0].innerHTML = firstIndex.tOcup;
+                        $("#lblLote ")[0].innerHTML = $("#txtLote").val();
+
+                        indexImageRejected = firstIndex;
+
+                        $("#divLoading").css("display", "none");
+                    },
+                    error: function (data) {
+                        $("#divLoading").css("display", "none");
+                        Swal.fire({
+                            text: 'Ocorreu algum erro, atualize a página novamente!',
+                            showClass: {
+                                popup: 'animate__bounceIn'
+                            },
+                            hideClass: {
+                                popup: 'animate__flipOutX'
+                            }
+                        });
+                    }
+                });
+            }
+            else {
+                var dtStart = $("#txtDateStart").val();
+                var dtEnd = $("#txtDateEnd").val();
+            }
+        }
+
+        function loadEnquadramento() {
+
+            var adress = "", adressFormated = "";
+            adress = $("#lblEndereco").val();
+            adressFormated = adress.padStart(4, '0');
+
+            $.ajax({
+                type: 'POST',
+                url: 'Default.aspx/loadEnquadramento',
+                dataType: 'json',
+                data: "{'eqp':'" + $("#lblEquipamento").val() + "', " +
+                    " 'endereco':'" + $("#lblEndereco").val() + "'}",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+
+                }
+            });
         }
     </script>
 </asp:Content>
