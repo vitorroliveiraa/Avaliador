@@ -127,7 +127,7 @@ namespace Avaliador.Rejected
             ArrayList lst = new ArrayList();
             Banco db = new Banco();
             DataTable dt = db.ExecuteReaderQuery(
-                @" distinct enquadramento cod,enquadramento=(select sdsc from enq e where e.iId =p.Enquadramento)  
+                @"select distinct enquadramento cod,enquadramento=(select sdsc from enq e where e.iId =p.Enquadramento)  
                 from process p where equipamento='" + eqp + "' and logradouro='" + endereco + "' " +
                 " and lote='" + lote + "' "
                 );

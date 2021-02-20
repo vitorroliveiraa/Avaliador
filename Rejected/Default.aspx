@@ -167,7 +167,7 @@
                                 </div>
                             </div>
 
-                            <div class="table-responsive">
+                            <div class="table-responsive" style="height: 17.1rem;">
                                 <table class="table table-bordered table-sm mb-0 mt-1" id="tblEnquadramentos">
                                     <thead>
                                         <tr>
@@ -232,7 +232,7 @@
     <script>
         var eqpsSelecteds = [];
         var listImagesRejecteds = [];
-        var indexImageRejected = 0;
+        var indexImageRejected = -1;
         $(function () {
         });
 
@@ -533,7 +533,8 @@
                         $("#lblTempoOcup")[0].innerHTML = firstIndex.tOcup;
                         $("#lblLote ")[0].innerHTML = $("#txtLote").val();
 
-                        indexImageRejected = firstIndex;
+                        indexImageRejected = 0;
+                        loadEnquadramento();
 
                         $("#divLoading").css("display", "none");
                     },
@@ -560,19 +561,42 @@
         function loadEnquadramento() {
 
             var adress = "", adressFormated = "";
-            adress = $("#lblEndereco").val();
-            adressFormated = adress.padStart(4, '0');
+            adress = $("#lblEndereco").text();
+            adressFormated = adress.substring(10, adress.length);
 
             $.ajax({
                 type: 'POST',
-                url: 'Default.aspx/loadEnquadramento',
+                url: 'Default.aspx/getEnquadramentos',
                 dataType: 'json',
-                data: "{'eqp':'" + $("#lblEquipamento").val() + "', " +
-                    " 'endereco':'" + $("#lblEndereco").val() + "'}",
+                data: "{'eqp':'" + $("#lblEquipamento").text() + "', " +
+                    " 'endereco':'" + adressFormated + "', " +
+                    " 'lote':'" + $("#txtLote").val() + "'}",
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
 
+                    $("#tbEnquadramentos").empty();
+                    if (data.d.length > 0) {
+                        for (var i = 0; i < data.d.length; i++) {
 
+                            var lst = data.d[i];
+                            var newRow = $("<tr>");
+                            var cols = "";
+                            cols += `<td>${lst.Text}</td>`;
+                            cols += `<td>${lst.Value}</td>`;
+
+                            newRow.append(cols);
+                            $("#tbEnquadramentos").append(newRow);
+                        }
+                    }
+                    else {
+
+                        var newRow = $("<tr>");
+                        var cols = `<td colspan='2'>Não há registros!</td>`;
+                        newRow.append(cols);
+                        $("#tbEnquadramentos").append(newRow);
+                    }
+
+                    $("#divLoading").css("display", "none");
                 }
             });
         }

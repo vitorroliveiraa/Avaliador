@@ -159,3 +159,11 @@ ul.ks-cboxtags {
     padding-left: 2rem;
     padding-right: 2rem;
 }
+
+#tbEnquadramentos tr:hover {
+    background-color: #F9F9F9;
+}
+
+#tbListImages tr:hover {
+    background-color: #F9F9F9;
+}
