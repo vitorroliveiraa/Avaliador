@@ -37,21 +37,32 @@
                                 </div>
                             </div>
 
+                            <div class="row row-cols-2 p-1">
+                                <div class="col" style="padding-right: 0.25rem;">
+                                    <button type="button" class="btn btn-outline-primary w-100"
+                                        id="btnEqp" onclick="editEqp(this)" value="btn">
+                                        Equipamento
+                                    </button>
+                                </div>
+                                <div class="col" style="padding-left: 0.25rem;">
+                                    <button type="button" class="btn btn-outline-primary w-100"
+                                        id="btnSearch" onclick="searchEqp()">
+                                        Pesquisar
+                                    </button>
+                                </div>
+                            </div>
+
                             <div class="p-1">
-                                <button type="button" class="btn btn-secondary"
-                                    id="btnEqp" onclick="editEqp(this)" value="btn">
-                                    Equipamento
-                                </button>
-                                <button type="button" class="btn btn-primary"
-                                    id="btnSearch" onclick="searchEqp()">
-                                    Pesquisar
+                                <button type="button" class="btn btn-primary btn-lg w-100"
+                                    id="btnReavaliar" onclick="reavaliar()">
+                                    Reavaliar
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="card">
+                <div class="card" style="display: none;">
                     <h5 class="card-header" onclick="closeListImages()">Lista de Imagens</h5>
                     <div class="collapse show" id="divBodyListImages">
                         <div class="card-body p-2">
@@ -81,13 +92,28 @@
                     <h5 class="card-header" style="padding: 0.3rem;">
                         <div class="row pl-pr-2r">
                             <label class="mb-0 align-self-center mr-1">Município:</label>
-                            <select class="form-control w-50" id="sleMunicipio" onchange="editEqp(this)"
-                                value="sle">
+                            <select class="form-control w-50" id="sleMunicipio" onchange="editEqp(this)">
                             </select>
                         </div>
                     </h5>
                     <div class="card-body p-0" style="height: 40.3rem;">
-                        <img src="../Images/fotoMultaMoto.png" class="img-fluid" alt="Responsive image">
+                        <div id="carouselImages" class="carousel slide" data-ride="carousel"
+                            data-interval="false" data-keyboard="true" data-touch="true">
+                            <div class="carousel-inner" id="dvImagens">
+                            </div>
+
+                            <a class="carousel-control-prev" href="#carouselImages" role="button"
+                                data-slide="prev" onclick="imgRejectedPrev()">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                            <a class="carousel-control-next" href="#carouselImages" role="button"
+                                data-slide="next" onclick="imgRejectedNext()">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        </div>
+                        <%--<img src="../Images/fotoMultaMoto.png" class="img-fluid" alt="Responsive image">--%>
                     </div>
                 </div>
             </div>
@@ -478,70 +504,39 @@
         }
 
         function searchEqp() {
+            var dataInput = $("#txtDateStart").val().replaceAll("-", "/");
+            var dataInicialFormatada = "", dataFinalFormatada = "";
+            if (dataInput != "") {
 
-            if ($("#rdoLote")[0].checked) {
+                data = new Date(dataInput);
+                dataInicialFormatada = data.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
 
-                $.ajax({
-                    type: 'POST',
-                    url: 'Default.aspx/searchEqp',
-                    dataType: 'json',
-                    data: JSON.stringify({
-                        lote: $("#txtLote").val(),
-                        eqpsSelecteds: eqpsSelecteds
-                    }),
-                    contentType: "application/json; charset=utf-8",
-                    success: function (data) {
+                dataInput = $("#txtDateEnd").val().replaceAll("-", "/");
+                data = new Date(dataInput);
+                dataFinalFormatada = data.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+            }
 
-                        $("#divLoading").css("display", "block");
-                        var i = 0;
-                        while (data.d[i]) {
-                            var lst = data.d[i];
+            $("#divLoading").css("display", "block");
+            $.ajax({
+                type: 'POST',
+                url: 'Default.aspx/searchEqp',
+                dataType: 'json',
+                data: JSON.stringify({
+                    lote: $("#txtLote").val(),
+                    eqpsSelecteds: eqpsSelecteds,
+                    dtInicial: dataInicialFormatada,
+                    dtFinal: dataFinalFormatada
+                }),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
 
-                            let imagesRejecteds = {
-                                "eqp": lst.eqp,
-                                "faixa": lst.faixa,
-                                "velMedida": lst.velMedida,
-                                "velCons": lst.velCons,
-                                "velVia": lst.velVia,
-                                "tempoSV": lst.tempoSV,
-                                "dtProcess": lst.dtProcess,
-                                "logradouro": lst.logradouro,
-                                "tOcup": lst.tOcup,
-                                "tamanho": lst.tamanho,
-                                "agente": lst.agente,
-                                "motivo": lst.motivo,
-                                "obs": lst.obs,
-                                "arquivo": lst.arquivo
-                            }
+                    var i = 0;
+                    $("#dvImagens").empty();
 
-                            listImagesRejecteds.push(imagesRejecteds);
-                            i++;
-                        }
+                    if (data.d.length == 0) {
 
-                        var firstIndex = listImagesRejecteds[0];
-                        $("#lblEquipamento")[0].innerHTML = firstIndex.eqp;
-                        $("#lblMunicipio")[0].innerHTML = $("#sleMunicipio").find(":selected").text();
-                        $("#lblEndereco")[0].innerHTML = "Endereço: " + firstIndex.logradouro;
-                        $("#lblFaixa")[0].innerHTML = firstIndex.faixa;
-                        $("#lblVelocidadeViaEqp")[0].innerHTML = firstIndex.velVia + "km/h";
-
-                        $("#dtHrEnquadramento")[0].innerHTML = firstIndex.dtProcess;
-                        $("#lblVelMedida")[0].innerHTML = firstIndex.velMedida;
-                        $("#lblVelConsiderada")[0].innerHTML = firstIndex.velCons;
-                        $("#lblTamanhoVeiculo")[0].innerHTML = firstIndex.tamanho;
-                        $("#lblTempoSV")[0].innerHTML = firstIndex.tempoSV;
-                        $("#lblTempoOcup")[0].innerHTML = firstIndex.tOcup;
-                        $("#lblLote ")[0].innerHTML = $("#txtLote").val();
-
-                        indexImageRejected = 0;
-                        loadEnquadramento();
-
-                        $("#divLoading").css("display", "none");
-                    },
-                    error: function (data) {
-                        $("#divLoading").css("display", "none");
                         Swal.fire({
-                            text: 'Ocorreu algum erro, atualize a página novamente!',
+                            text: 'Não há registros!',
                             showClass: {
                                 popup: 'animate__bounceIn'
                             },
@@ -549,13 +544,75 @@
                                 popup: 'animate__flipOutX'
                             }
                         });
+                        return;
                     }
-                });
-            }
-            else {
-                var dtStart = $("#txtDateStart").val();
-                var dtEnd = $("#txtDateEnd").val();
-            }
+                    while (data.d[i]) {
+                        var lst = data.d[i];
+
+                        let imagesRejecteds = {
+                            "eqp": lst.eqp,
+                            "faixa": lst.faixa,
+                            "velMedida": lst.velMedida,
+                            "velCons": lst.velCons,
+                            "velVia": lst.velVia,
+                            "tempoSV": lst.tempoSV,
+                            "dtProcess": lst.dtProcess,
+                            "logradouro": lst.logradouro,
+                            "tOcup": lst.tOcup,
+                            "tamanho": lst.tamanho,
+                            "agente": lst.agente,
+                            "motivo": lst.motivo,
+                            "obs": lst.obs,
+                            "arquivo": lst.arquivo,
+                            "id": lst.id,
+                            "lote":lst.lote
+                        }
+
+                        var ativo = "";
+                        if (i == 0)
+                            ativo = "active";
+
+                        var div = "<div class='carousel-item " + ativo + "'>" +
+                            "<img src='" + lst.arquivo + "' class='d-block w-100' alt='...' ></div >";
+                        $("#dvImagens").append(div);
+
+                        listImagesRejecteds.push(imagesRejecteds);
+                        i++;
+                    }
+
+                    var firstIndex = listImagesRejecteds[0];
+                    $("#lblEquipamento")[0].innerHTML = firstIndex.eqp;
+                    $("#lblMunicipio")[0].innerHTML = $("#sleMunicipio").find(":selected").text();
+                    $("#lblEndereco")[0].innerHTML = "Endereço: " + firstIndex.logradouro;
+                    $("#lblFaixa")[0].innerHTML = firstIndex.faixa;
+                    $("#lblVelocidadeViaEqp")[0].innerHTML = firstIndex.velVia + "km/h";
+
+                    $("#dtHrEnquadramento")[0].innerHTML = firstIndex.dtProcess;
+                    $("#lblVelMedida")[0].innerHTML = firstIndex.velMedida;
+                    $("#lblVelConsiderada")[0].innerHTML = firstIndex.velCons;
+                    $("#lblTamanhoVeiculo")[0].innerHTML = firstIndex.tamanho;
+                    $("#lblTempoSV")[0].innerHTML = firstIndex.tempoSV;
+                    $("#lblTempoOcup")[0].innerHTML = firstIndex.tOcup;
+                    $("#lblLote ")[0].innerHTML = firstIndex.lote;
+
+                    indexImageRejected = 0;
+                    loadEnquadramento();
+
+                    $("#divLoading").css("display", "none");
+                },
+                error: function (data) {
+                    $("#divLoading").css("display", "none");
+                    Swal.fire({
+                        text: 'Ocorreu algum erro, atualize a página novamente!',
+                        showClass: {
+                            popup: 'animate__bounceIn'
+                        },
+                        hideClass: {
+                            popup: 'animate__flipOutX'
+                        }
+                    });
+                }
+            });
         }
 
         function loadEnquadramento() {
@@ -570,7 +627,7 @@
                 dataType: 'json',
                 data: "{'eqp':'" + $("#lblEquipamento").text() + "', " +
                     " 'endereco':'" + adressFormated + "', " +
-                    " 'lote':'" + $("#txtLote").val() + "'}",
+                    " 'lote':'" + $("#lblLote")[0].innerText + "'}",
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
 
@@ -595,6 +652,71 @@
                         newRow.append(cols);
                         $("#tbEnquadramentos").append(newRow);
                     }
+
+                    $("#divLoading").css("display", "none");
+                }
+            });
+        }
+
+        function imgRejectedPrev() {
+
+            indexImageRejected--;
+            if (indexImageRejected < 0) {
+                indexImageRejected = listImagesRejecteds.length - 1;
+            }
+
+            var register = listImagesRejecteds[indexImageRejected];
+            $("#lblEquipamento")[0].innerHTML = register.eqp;
+            $("#lblMunicipio")[0].innerHTML = $("#sleMunicipio").find(":selected").text();
+            $("#lblEndereco")[0].innerHTML = "Endereço: " + register.logradouro;
+            $("#lblFaixa")[0].innerHTML = register.faixa;
+            $("#lblVelocidadeViaEqp")[0].innerHTML = register.velVia + "km/h";
+
+            $("#dtHrEnquadramento")[0].innerHTML = register.dtProcess;
+            $("#lblVelMedida")[0].innerHTML = register.velMedida;
+            $("#lblVelConsiderada")[0].innerHTML = register.velCons;
+            $("#lblTamanhoVeiculo")[0].innerHTML = register.tamanho;
+            $("#lblTempoSV")[0].innerHTML = register.tempoSV;
+            $("#lblTempoOcup")[0].innerHTML = register.tOcup;
+            $("#lblLote ")[0].innerHTML = register.lote;
+            loadEnquadramento();
+        }
+
+        function imgRejectedNext() {
+
+            indexImageRejected++;
+            if (indexImageRejected > listImagesRejecteds.length - 1) {
+                indexImageRejected = 0;
+            }
+
+            var register = listImagesRejecteds[indexImageRejected];
+            $("#lblEquipamento")[0].innerHTML = register.eqp;
+            $("#lblMunicipio")[0].innerHTML = $("#sleMunicipio").find(":selected").text();
+            $("#lblEndereco")[0].innerHTML = "Endereço: " + register.logradouro;
+            $("#lblFaixa")[0].innerHTML = register.faixa;
+            $("#lblVelocidadeViaEqp")[0].innerHTML = register.velVia + "km/h";
+
+            $("#dtHrEnquadramento")[0].innerHTML = register.dtProcess;
+            $("#lblVelMedida")[0].innerHTML = register.velMedida;
+            $("#lblVelConsiderada")[0].innerHTML = register.velCons;
+            $("#lblTamanhoVeiculo")[0].innerHTML = register.tamanho;
+            $("#lblTempoSV")[0].innerHTML = register.tempoSV;
+            $("#lblTempoOcup")[0].innerHTML = register.tOcup;
+            $("#lblLote ")[0].innerHTML = register.lote;
+            loadEnquadramento();
+        }
+
+        function reavaliar() {
+
+            var id = listImagesRejecteds[indexImageRejected].id;
+            $.ajax({
+                type: 'POST',
+                url: 'Default.aspx/reavaliar',
+                dataType: 'json',
+                data: "{'id':'" + id + "'}",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
 
                     $("#divLoading").css("display", "none");
                 }

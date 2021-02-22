@@ -66,7 +66,7 @@
 
     <title><%: Page.Title %> - Cobrasin</title>
 
-    <link href="/Images/cameraSecurity.png" rel="shortcut icon" type="image/x-icon" />
+    <link href="../Images/cameraSecurity.png" rel="shortcut icon" type="image/x-icon" />
 </head>
 
 <body style="padding-top: 0; padding-bottom: 0;">
@@ -76,7 +76,7 @@
         <%--OLD CLASS: navbar navbar-light bg-light--%>
         <nav class="navbar navbar-expand-lg navbar-light bg-gray">
             <a class="navbar-brand" href="#">
-                <img src="/images/cameraSecurity.png" width="40" height="40" class="d-inline-block align-top" alt="">
+                <img src="../images/cameraSecurity.png" width="40" height="40" class="d-inline-block align-top" alt="">
                 <label style="font-size: 27px; margin-bottom: 0;">Avaliador</label>
             </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" onclick="navbar" id="navBtn"
@@ -87,12 +87,12 @@
             <div class="collapse navbar-collapse" id="navbarNavDropdown"
                 style="border-left: 1px solid rgb(0 0 0 / 13%);">
                 <ul class="navbar-nav pl-4">
-                    <li class="nav-item">
+                   <%-- <li class="nav-item">
                         <a class="nav-link" style="font-size: large; color: rgb(0 0 0);" href="/Default.aspx">Avaliador
                         </a>
-                    </li>
+                    </li>--%>
                     <li class="nav-item">
-                        <a class="nav-link" style="font-size: large; color: rgb(0 0 0);" href="/Rejected/Default.aspx">Reprovados
+                        <a class="nav-link" style="font-size: large; color: rgb(0 0 0);" href="http://sistemas.cobrasin.com.br:9091/AvaliadorJS/Rejected/Default.aspx">Reprovados
                         </a>
                     </li>
                 </ul>

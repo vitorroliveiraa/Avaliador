@@ -62,6 +62,8 @@ namespace Avaliador.Rejected
 
         public struct equipament
         {
+            public string lote { get; set; }
+            public string id { get; set; }
             public string eqp { get; set; }
             public string faixa { get; set; }
             public string velMedida { get; set; }
@@ -79,13 +81,13 @@ namespace Avaliador.Rejected
         }
 
         [WebMethod]
-        public static List<equipament> searchEqp(string lote, string[] eqpsSelecteds)
+        public static List<equipament> searchEqp(string lote, string[] eqpsSelecteds, string dtInicial, string dtFinal)
         {
             List<equipament> lst = new List<equipament>();
             Banco db = new Banco();
 
             string sql = "";
-            sql += @"(select p.equipamento eqp,p.Faixa,VelMedida,VelCons,VelVia,TempoSV,DtProcess,Logradouro,[TOcup],[Tamanho],
+            sql += @"(select p.equipamento eqp,p.id,p.Faixa,VelMedida,VelCons,VelVia,TempoSV,p.lote,DtHr DtProcess,Logradouro,[TOcup],[Tamanho],
                    Agente, motivo=(select dsc from motivo m where m.id=r.motivo), obs,
                    arquivo='http://sistemas.cobrasin.com.br:9091/imgLotes/'+p.equipamento+'/'+p.lote+'/'+replace(CONVERT(VARCHAR(10),p.dthr,110),'/','_') 
                    +'/'+ LEFT(substring(i.path,charindex('\',i.path,55)+1, len(i.path)), 
@@ -93,14 +95,22 @@ namespace Avaliador.Rejected
                    then (PATINDEX('%Zo%', substring(i.path,charindex('\',i.path,55)+1, len(i.path)-3))) else
                    (PATINDEX('%Pan%', substring(i.path,charindex('\',i.path,55)+1, len(i.path)-3))) end-1)+'.jpg'
                    from process p join logrejeicao r on r.idprocess=p.id join imageprocess i on i.process=p.id 
-                   where p.valido=0 and p.lote='" + lote + "' and equipamento in ('" + string.Join("','", eqpsSelecteds) + "')) ";
+                   where p.valido=0 ";
+            if (!string.IsNullOrEmpty(lote))
+                sql += " and p.lote='" + lote + "'";
+            if (!string.IsNullOrEmpty(dtInicial) && !string.IsNullOrEmpty(dtFinal))
+                sql += " and CONVERT(DATE,p.DtHr)>=CONVERT(DATE,'" + dtInicial + "')"+
+                    " and CONVERT(DATE,p.DtHr)<=CONVERT(DATE,'" + dtFinal + "')";
 
+            sql += "and equipamento in ('" + string.Join("','", eqpsSelecteds) + "'))  order by eqp";
             DataTable dt = db.ExecuteReaderQuery(sql);
 
             foreach (DataRow dr in dt.Rows)
             {
                 lst.Add(new equipament
                 {
+                    lote=dr["lote"].ToString(),
+                    id = dr["id"].ToString(),
                     eqp = dr["eqp"].ToString(),
                     faixa = dr["faixa"].ToString(),
                     velMedida = dr["velMedida"].ToString(),
@@ -141,6 +151,13 @@ namespace Avaliador.Rejected
             }
 
             return lst;
+        }
+
+        [WebMethod]
+        public static void reavaliar(string id)
+        {
+            Banco db = new Banco();
+            db.ExecuteNonQuery("update process set  Usuario=null,FlagProcess=null,DtProcess=null where id=" + id);
         }
     }
 }
