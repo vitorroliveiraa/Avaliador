@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Web;
+using System.Web.Security;
 using System.Web.Services;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -15,6 +16,28 @@ namespace Avaliador.Rejected
         protected void Page_Load(object sender, EventArgs e)
         {
 
+            string url = Request.QueryString["x"];
+
+            if (string.IsNullOrEmpty(url) == false)
+            {
+                string[] nomeCripto = url.Split('@');
+
+                string str = "";
+                foreach (var item in nomeCripto)
+                {
+                    if (item != "")
+                        str += Convert.ToChar(Convert.ToInt32(item) - 1);
+                }
+                MembershipUser usuario = Membership.GetUser(str);
+                if (usuario == null)
+                {
+                    hfUserConected.Value = "0";
+                }
+            }
+            else
+            {
+                hfUserConected.Value = "0";
+            }
         }
 
         [WebMethod]
@@ -62,6 +85,8 @@ namespace Avaliador.Rejected
 
         public struct equipament
         {
+            public string lote { get; set; }
+            public string id { get; set; }
             public string eqp { get; set; }
             public string faixa { get; set; }
             public string velMedida { get; set; }
@@ -79,13 +104,13 @@ namespace Avaliador.Rejected
         }
 
         [WebMethod]
-        public static List<equipament> searchEqp(string lote, string[] eqpsSelecteds)
+        public static List<equipament> searchEqp(string lote, string[] eqpsSelecteds, string dtInicial, string dtFinal)
         {
             List<equipament> lst = new List<equipament>();
             Banco db = new Banco();
 
             string sql = "";
-            sql += @"(select p.equipamento eqp,p.Faixa,VelMedida,VelCons,VelVia,TempoSV,DtProcess,Logradouro,[TOcup],[Tamanho],
+            sql += @"(select distinct p.equipamento eqp,p.id,p.Faixa,VelMedida,VelCons,VelVia,TempoSV,p.lote, p.DtHr,Logradouro,[TOcup],[Tamanho],
                    Agente, motivo=(select dsc from motivo m where m.id=r.motivo), obs,
                    arquivo='http://sistemas.cobrasin.com.br:9091/imgLotes/'+p.equipamento+'/'+p.lote+'/'+replace(CONVERT(VARCHAR(10),p.dthr,110),'/','_') 
                    +'/'+ LEFT(substring(i.path,charindex('\',i.path,55)+1, len(i.path)), 
@@ -93,21 +118,29 @@ namespace Avaliador.Rejected
                    then (PATINDEX('%Zo%', substring(i.path,charindex('\',i.path,55)+1, len(i.path)-3))) else
                    (PATINDEX('%Pan%', substring(i.path,charindex('\',i.path,55)+1, len(i.path)-3))) end-1)+'.jpg'
                    from process p join logrejeicao r on r.idprocess=p.id join imageprocess i on i.process=p.id 
-                   where p.valido=0 and p.lote='" + lote + "' and equipamento in ('" + string.Join("','", eqpsSelecteds) + "')) ";
+                   where p.valido=0 ";
+            if (!string.IsNullOrEmpty(lote))
+                sql += " and p.lote='" + lote + "'";
+            if (!string.IsNullOrEmpty(dtInicial) && !string.IsNullOrEmpty(dtFinal))
+                sql += " and CONVERT(DATE,p.DtHr)>=CONVERT(DATE,'" + dtInicial + "')" +
+                    " and CONVERT(DATE,p.DtHr)<=CONVERT(DATE,'" + dtFinal + "')";
 
+            sql += " and equipamento in ('" + string.Join("','", eqpsSelecteds) + "'))  order by eqp";
             DataTable dt = db.ExecuteReaderQuery(sql);
 
             foreach (DataRow dr in dt.Rows)
             {
                 lst.Add(new equipament
                 {
+                    lote = dr["lote"].ToString(),
+                    id = dr["id"].ToString(),
                     eqp = dr["eqp"].ToString(),
                     faixa = dr["faixa"].ToString(),
                     velMedida = dr["velMedida"].ToString(),
                     velCons = dr["velCons"].ToString(),
                     velVia = dr["velVia"].ToString(),
                     tempoSV = dr["tempoSV"].ToString(),
-                    dtProcess = dr["dtProcess"].ToString(),
+                    dtProcess = dr["DtHr"].ToString(),
                     logradouro = dr["logradouro"].ToString(),
                     tOcup = dr["TOcup"].ToString(),
                     tamanho = dr["Tamanho"].ToString(),
@@ -141,6 +174,16 @@ namespace Avaliador.Rejected
             }
 
             return lst;
+        }
+
+        [WebMethod]
+        public static void Reavaliar(string id, string placa)
+        {
+            Banco db = new Banco();
+            db.ExecuteNonQuery(
+                @"UPDATE Process SET Usuario=null,FlagProcess=null,DtProcess=null,valido=null,placa='" + placa + "' " +
+                " WHERE id=" + id
+                );
         }
     }
 }

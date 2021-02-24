@@ -261,6 +261,7 @@
 
         });
 
+        //#region COLLAPSE CARDS
         function closeEditionImage() {
 
             if ($("#divBodyEditionImage")[0].className == "collapse" ||
@@ -330,6 +331,9 @@
                 $("#divBodyEnquadramento").addClass("hide collapse");
             }
         }
+        //#endregion
+
+
     </script>
 
 </asp:Content>
