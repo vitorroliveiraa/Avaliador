@@ -402,7 +402,7 @@
 
                     return;
                 }
-
+                
                 $("#ulEqps").empty();
                 $.ajax({
                     type: 'POST',
