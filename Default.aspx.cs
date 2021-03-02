@@ -19,7 +19,7 @@ namespace Avaliador
             if (!IsPostBack)
             {
                 string url = Request.QueryString["x"];
-
+                user = "";
                 if (string.IsNullOrEmpty(url) == false)
                 {
                     string[] nomeCripto = url.Split('@');
@@ -196,27 +196,6 @@ namespace Avaliador
                         infractions = dr["Enqs"].ToString(),
                         numberPlate = dr["placa"].ToString()
                     });
-
-                    //Id = Convert.ToInt32(dr["Codigo"]);
-                    //EqpId = dr["Eqp"].ToString();
-                    //TipoId = Convert.ToInt32(dr["TipoId"]);
-                    //Track = Convert.ToInt32(dr["Fx"]);
-                    //DtTraf = dr["Dt"].ToString();
-                    //Mnc = Convert.ToInt32(dr["mnc"]);
-                    //MncDsc = dr["mncDsc"].ToString();
-                    //Logr = dr["Lgr"].ToString();
-                    //InfractionId = Convert.ToInt32(dr["Enq"]);
-                    //InfractionDsc = dr["EnqDsc"].ToString();
-                    //Infractions = dr["Enqs"].ToString();
-                    //NumberPlate = dr["Plc"].ToString();
-                    //Size = dr["Tam"].ToString();
-                    //SpeedMeasured = Convert.ToDouble(dr["velM"]);
-                    //SpeedConsidered = Convert.ToDouble(dr["velC"]);
-                    //SpeedLimit = Convert.ToDouble(dr["velV"]);
-                    //TimeOccupancy = dr["TOcup"].ToString() == "" ? 0 : Convert.ToDouble(dr["TOcup"]);
-                    //TimeSvOn = dr["Sv"].ToString() == "" ? 0 : Convert.ToDouble(dr["Sv"]);
-                    //Agente = dr["ag"].ToString();
-                    //Lote = dr["Lote"].ToString();
                 }
 
                 db.ExecuteNonQuery(string.Format(
@@ -240,7 +219,7 @@ namespace Avaliador
             try
             {
                 Banco db = new Banco();
-                    
+
                 if (!db.ExecuteNonQuery(string.Format(
                     @"UPDATE Process SET Placa='{0}', FlagProcess='E', Valido='{1}', dtAval='{4}',
                     Usuario='{2}' WHERE id={3}", placa, valido, usuario, idProcess,
@@ -265,7 +244,6 @@ namespace Avaliador
                         return er.Message;
                     }
                 }
-
             }
             catch (Exception er)
             {
@@ -273,6 +251,79 @@ namespace Avaliador
             }
 
             return "true";
+        }
+
+        public struct statusProcess
+        {
+            public int qtdAprovadas { get; set; }
+            public int qtdReprovadas { get; set; }
+            public int total { get; set; }
+            public int pendentes { get; set; }
+        }
+
+        [WebMethod]
+        public static statusProcess getStatusProcess(string user)
+        {
+            statusProcess data = new statusProcess();
+
+            Banco db = new Banco();
+            data.qtdAprovadas = Convert.ToInt32(db.ExecuteScalarQuery(
+                @"SELECT count(0)FROM process WHERE valido='1' AND substring(dtAval,0,11)=CONVERT(CHAR(10),
+                getdate() , 103)  AND usuario='" + user + "'"
+                ));
+
+            data.qtdReprovadas = Convert.ToInt32(db.ExecuteScalarQuery(
+                @"SELECT count(0)FROM process WHERE valido='0' AND substring(dtAval,0,11)=CONVERT(CHAR(10),
+                getdate() , 103)  AND usuario='" + user + "'"
+                ));
+
+            data.total = data.qtdAprovadas + data.qtdReprovadas;
+
+            DataTable dt;
+            dt = db.ExecuteReaderQuery(
+                @"SELECT SUBSTRING(r.RoleName,0,5) mncId FROM dbo.aspnet_UsersInRoles ur 
+                JOIN dbo.aspnet_Roles r on ur.RoleId=r.RoleId
+                JOIN  dbo.aspnet_Users u on u.UserId=ur.UserId 
+                WHERE ISNUMERIC(SUBSTRING(r.RoleName,0,5))=1 AND u.UserName='" + user + "'"
+                );
+
+            string mnc = "";
+            int i = 1;
+            foreach (DataRow dr in dt.Rows)
+            {
+                if (i != 1)
+                    mnc = mnc + ",";
+
+                mnc = mnc + dr["mncId"].ToString();
+                i++;
+            }
+
+            data.pendentes = Convert.ToInt32(db.ExecuteScalarQuery(
+                @"SELECT count(0) FROM process WHERE mnc in (" + mnc + ") AND flagprocess is null"
+                ));
+
+            return data;
+        }
+
+        [WebMethod]
+        public static ArrayList getMotivo()
+        {
+            ArrayList lst = new ArrayList();
+            Banco db = new Banco();
+
+            DataTable dt = db.ExecuteReaderQuery(
+                @"SELECT Id, Dsc FROM dbo.Motivo ORDER by Dsc"
+                );
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                lst.Add(new ListItem(
+                    dr["Dsc"].ToString(),
+                    dr["id"].ToString()
+                ));
+            }
+
+            return lst;
         }
     }
 }

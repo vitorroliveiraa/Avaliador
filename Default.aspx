@@ -136,7 +136,8 @@
                                 Aprovar
                             </button>
                             <button type="button" class="btn btn-danger ml-1"
-                                id="btnReprovar" onclick="validateProcess(false)">
+                                id="btnReprovar" data-toggle="modal" data-target="#modalConfirmRejection"
+                                onclick="getMotivo()">
                                 Reprovar
                             </button>
                         </div>
@@ -312,6 +313,34 @@
         </div>
     </div>
 
+    <div class="modal fade" id="modalConfirmRejection">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Motivo rejeição</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="mb-0 align-self-center mr-1" for="sleMotivo">Motivo:</label>
+                        <select class="form-control" id="sleMotivo" onchange="">
+                        </select>
+                    </div>
+
+                    <label class="mb-0 align-self-center mr-1" for="txtObs">Obs:</label>
+                    <textarea class="form-control" id="txtObs" rows="3"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" onclick="validateProcess(false)">
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="ControllersJS/General.js"></script>
 
     <script>
@@ -320,6 +349,7 @@
         var indexImagePending = -1;
         $(function () {
             loadAllData();
+            getStatusProcess();
         });
 
         //#region COLLAPSE CARDS
@@ -531,7 +561,7 @@
                 error: function (data) {
                     $("#divLoading").css("display", "none");
                     Swal.fire({
-                        text: 'Ocorreu algum erro, atualize a página novamente!',
+                        text: 'Falha ao carregar as informações, atualize a página novamente!',
                         showClass: {
                             popup: 'animate__bounceIn'
                         },
@@ -614,7 +644,7 @@
                     error: function (data) {
                         $("#divLoading").css("display", "none");
                         Swal.fire({
-                            text: 'Ocorreu algum erro, atualize a página novamente!',
+                            text: 'Falha ao carregar os equipamentos, atualize a página novamente!',
                             showClass: {
                                 popup: 'animate__bounceIn'
                             },
@@ -639,8 +669,8 @@
                     valido: valid,
                     usuario: $("#hfUserConected").val(),
                     placa: $("#txtPlaca").val(),
-                    idMotivoRejeicao: "",
-                    obsRejeito: ""
+                    idMotivoRejeicao: $("#sleMotivo").val(),
+                    obsRejeito: $("#txtObs").val()
                 }),
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
@@ -657,6 +687,9 @@
                             }
                         });
 
+                        $("#sleMotivo").val("");
+                        $("#txtObs").val("");
+                        $("#modalConfirmRejection").modal("hide");
                         loadAllData();
                     }
                     else {
@@ -671,12 +704,71 @@
                         });
                     }
 
+                    getStatusProcess();
+
                     $("#divLoading").css("display", "none");
                 },
                 error: function (data) {
                     $("#divLoading").css("display", "none");
                     Swal.fire({
                         text: 'Ocorreu algum erro, atualize a página novamente!',
+                        showClass: {
+                            popup: 'animate__bounceIn'
+                        },
+                        hideClass: {
+                            popup: 'animate__flipOutX'
+                        }
+                    });
+                }
+            });
+        }
+
+        function getStatusProcess() {
+
+            $.ajax({
+                type: 'POST',
+                url: 'Default.aspx/getStatusProcess',
+                dataType: 'json',
+                data: "{'user':'" + $("#hfUserConected").val() + "'}",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    $("#lblAprovados").text(data.d.qtdAprovadas);
+                    $("#lblReprovados").text(data.d.qtdReprovadas);
+                    $("#lblTotal").text(data.d.total);
+                    $("#lblPendentes").text(data.d.pendentes);
+                },
+                error: function (data) {
+                    $("#divLoading").css("display", "none");
+                    Swal.fire({
+                        text: 'Falha ao carregar o status, atualize a página novamente!',
+                        showClass: {
+                            popup: 'animate__bounceIn'
+                        },
+                        hideClass: {
+                            popup: 'animate__flipOutX'
+                        }
+                    });
+                }
+            });
+        }
+
+        function getMotivo() {
+
+            $.ajax({
+                type: 'POST',
+                url: 'Default.aspx/getMotivo',
+                dataType: 'json',
+                data: "{}",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    $("#sleMotivo").empty();                    $("#sleMotivo").append($("<option></option>").val("").html("─ SELECIONE ─"));                    $.each(data.d, function () {                        $("#sleMotivo").append(                            $("<option></option>").val(this['Value']).html(this['Text'])                        );                    });
+                },
+                error: function (data) {
+                    $("#divLoading").css("display", "none");
+                    Swal.fire({
+                        text: 'Falha ao carregar o motivo, atualize a página novamente!',
                         showClass: {
                             popup: 'animate__bounceIn'
                         },

@@ -136,20 +136,22 @@
                     <div class="float-right">
                         <div class="row">
                             <label class="mb-0 mr-3 font-weight-bold" style="color: rgb(40 167 69);">
-                                Aprovados:<label class="mb-0"
-                                    id="lblAprovados">####</label>
+                                Aprovados:
+                                <label class="mb-0 ml-1" id="lblAprovados"></label>
                             </label>
                             <label class="mb-0 mr-3 font-weight-bold" style="color: rgb(220 53 69);">
-                                Reprovados:<label class="mb-0"
-                                    id="lblReprovados">####</label>
+                                Reprovados:
+                                <label class="mb-0 ml-1" id="lblReprovados"></label>
                             </label>
-                            <label class="mb-0 mr-3 pr-3 font-weight-bold" style="border-right: 1px solid rgb(0 0 0 / 13%);">
-                                Total:<label class="mb-0" id="lblTotal">####</label>
+                            <label class="mb-0 mr-3 pr-3 font-weight-bold"
+                                style="border-right: 1px solid rgb(0 0 0 / 13%);">
+                                Total:
+                                <label class="mb-0 ml-1" id="lblTotal"></label>
                             </label>
                             <fieldset class="fieldseat-pending mr-2">
                                 <label class="mb-0 font-weight-bold" style="color: rgb(224 168 0);">
-                                    Pendentes:<label class="mb-0" id="lblPendentes">
-                                        ####</label>
+                                    Pendentes:
+                                    <label class="mb-0 ml-1" id="lblPendentes"></label>
                                 </label>
                             </fieldset>
                         </div>
