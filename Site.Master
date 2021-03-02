@@ -30,6 +30,26 @@
 
 
     <style>
+        /*#region SWITCHES*/
+        .custom-switch .custom-control-label::before {
+            width: 2rem;
+        }
+
+        .custom-control-label::before {
+            height: 1rem;
+        }
+
+        .custom-switch .custom-control-input:checked ~ .custom-control-label::after {
+            -webkit-transform: translateX(.92rem);
+            transform: translateX(.92rem);
+        }
+
+        .custom-switch .custom-control-label::after {
+            width: calc(1rem - 3px);
+            height: calc(1rem - 3px);
+        }
+        /*#endregion*/
+
         .footer {
             position: fixed;
             left: 0;
@@ -62,6 +82,13 @@
         .navbar-light .navbar-nav .nav-link:focus, .navbar-light .navbar-nav .nav-link:hover {
             color: rgb(0 105 217) !important;
         }
+
+        .fieldseat-pending {
+            border: 1px solid rgb(224 168 0);
+            border-radius: 0.2rem;
+            padding-left: .3rem;
+            padding-right: .3rem;
+        }
     </style>
 
     <title><%: Page.Title %> - Cobrasin</title>
@@ -88,20 +115,54 @@
                 style="border-left: 1px solid rgb(0 0 0 / 13%);">
                 <ul class="navbar-nav pl-4">
                     <li class="nav-item">
-                        <a class="nav-link" style="font-size: large; color: rgb(0 0 0);" href="/Default.aspx">Avaliador
+                        <a class="nav-link" style="font-size: large; color: rgb(0 0 0);"
+                            href="/Default.aspx">Avaliador
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" style="font-size: large; color: rgb(0 0 0);" href="/Rejected/Default.aspx">Reprovados
+                        <a class="nav-link" style="font-size: large; color: rgb(0 0 0);"
+                            href="/Rejected/Default.aspx">Reprovados
                         </a>
                     </li>
                 </ul>
 
-                <div class="w-100">
+                <%--<div class="w-100">
                     <label class="nav-link m-0" style="font-size: large; text-align-last: right;"
                         href="http://infortronics.com.br/">
                         &copy; Infortronics
                     </label>
+                </div>--%>
+                <div class="w-100">
+                    <div class="float-right">
+                        <div class="row">
+                            <label class="mb-0 mr-3 font-weight-bold" style="color: rgb(40 167 69);">
+                                Aprovados:<label class="mb-0"
+                                    id="lblAprovados">####</label>
+                            </label>
+                            <label class="mb-0 mr-3 font-weight-bold" style="color: rgb(220 53 69);">
+                                Reprovados:<label class="mb-0"
+                                    id="lblReprovados">####</label>
+                            </label>
+                            <label class="mb-0 mr-3 pr-3 font-weight-bold" style="border-right: 1px solid rgb(0 0 0 / 13%);">
+                                Total:<label class="mb-0" id="lblTotal">####</label>
+                            </label>
+                            <fieldset class="fieldseat-pending mr-2">
+                                <label class="mb-0 font-weight-bold" style="color: rgb(224 168 0);">
+                                    Pendentes:<label class="mb-0" id="lblPendentes">
+                                        ####</label>
+                                </label>
+                            </fieldset>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="chkAvaliarVeiculosCarga"
+                                    onclick="" disabled>
+                                <label class="custom-control-label" for="chkAvaliarVeiculosCarga">
+                                    Avaliar somente veículos de carga
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -110,7 +171,8 @@
             <div style="background-color: rgba(132, 132, 132, 0.53); position: fixed; width: 100%; top: 0px; height: 100%; transition: background-color .1s; left: 0px; right: 0px; z-index: 1;">
                 <div style="width: 100%; text-align: center; z-index: 10; height: 55%; position: absolute; margin: auto; top: 0; right: 0; bottom: 0; left: 0;">
                     <lottie-player src="https://assets4.lottiefiles.com/packages/lf20_wsbm8uw6.json"
-                        background="transparent" speed="1" loop autoplay></lottie-player>
+                        background="transparent" speed="1" loop autoplay>
+                    </lottie-player>
                 </div>
             </div>
         </div>

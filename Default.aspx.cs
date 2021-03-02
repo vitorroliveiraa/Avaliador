@@ -16,26 +16,33 @@ namespace Avaliador
         static string user = "";
         protected void Page_Load(object sender, EventArgs e)
         {
-            string url = Request.QueryString["x"];
-
-            if (string.IsNullOrEmpty(url) == false)
+            if (!IsPostBack)
             {
-                string[] nomeCripto = url.Split('@');
+                string url = Request.QueryString["x"];
 
-                foreach (var item in nomeCripto)
+                if (string.IsNullOrEmpty(url) == false)
                 {
-                    if (item != "")
-                        user += Convert.ToChar(Convert.ToInt32(item) - 1);
+                    string[] nomeCripto = url.Split('@');
+
+                    foreach (var item in nomeCripto)
+                    {
+                        if (item != "")
+                            user += Convert.ToChar(Convert.ToInt32(item) - 1);
+                    }
+                    MembershipUser usuarioM = Membership.GetUser(user);
+                    if (usuarioM == null)
+                    {
+                        hfUserConected.Value = "0";
+                    }
+                    else
+                    {
+                        hfUserConected.Value = user;
+                    }
                 }
-                MembershipUser usuarioM = Membership.GetUser(user);
-                if (usuarioM == null)
+                else
                 {
                     hfUserConected.Value = "0";
                 }
-            }
-            else
-            {
-                hfUserConected.Value = "0";
             }
         }
 
@@ -124,7 +131,7 @@ namespace Avaliador
                     Placa,Tamanho,VelMedida,VelCons,VelVia, TOcup,TempoSV,Agente FROM Process
                     WHERE (ISNULL([FlagProcess],'')='' or ([FlagProcess]='P' and DATEDIFF(hour,DtProcess,GETDATE()) >=1))";
 
-                if (idMunicipio != "" && idMunicipio != "999666999")
+                if (!string.IsNullOrEmpty(idMunicipio) && idMunicipio != "999666999")
                 {
                     mnc = " and Mnc =" + idMunicipio;
                     if (Eqps != null)
@@ -224,6 +231,48 @@ namespace Avaliador
 
                 return lst;
             }
+        }
+
+        [WebMethod]
+        public static string validateProcess(string idProcess, bool valido, string usuario, string placa,
+            string idMotivoRejeicao, string obsRejeito)
+        {
+            try
+            {
+                Banco db = new Banco();
+                    
+                if (!db.ExecuteNonQuery(string.Format(
+                    @"UPDATE Process SET Placa='{0}', FlagProcess='E', Valido='{1}', dtAval='{4}',
+                    Usuario='{2}' WHERE id={3}", placa, valido, usuario, idProcess,
+                    DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss.fff"))))
+                {
+                    return "Erro ao salvar no banco";
+                }
+
+                if (valido == false)
+                {
+                    try
+                    {
+                        db.ClearSQLParams();
+                        db.AddSQLParam("Idprocess", idProcess);
+                        db.AddSQLParam("Motivo", idMotivoRejeicao);
+                        db.AddSQLParam("Obs", obsRejeito);
+                        if (!db.ExecuteNonQueryStoredProcedure("InsertLogRejeicaoProcess", true))
+                            return "Erro ao salvar no banco";
+                    }
+                    catch (Exception er)
+                    {
+                        return er.Message;
+                    }
+                }
+
+            }
+            catch (Exception er)
+            {
+                return "false";
+            }
+
+            return "true";
         }
     }
 }

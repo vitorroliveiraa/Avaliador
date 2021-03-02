@@ -167,3 +167,17 @@ ul.ks-cboxtags {
 #tbListImages tr:hover {
     background-color: #F9F9F9;
 }
+
+#btnSearchPlaca {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+}
+
+#txtPlaca {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+}
+
+.margin-t {
+    margin-top: 6px;
+}

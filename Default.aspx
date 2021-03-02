@@ -3,13 +3,14 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <link href="ControllersJS/General.css" rel="stylesheet" />
 
-    <asp:HiddenField ID="hfUserConected" ClientIDMode="Static" Value="1" runat="server" />
+    <asp:HiddenField ID="hfUserConected" ClientIDMode="Static" runat="server" />
+    <asp:HiddenField ID="hfidProcess" ClientIDMode="Static" runat="server" />
 
     <div class="container-fluid">
         <div class="row">
             <%--EDITION IMAGE--%>
             <div class="col-sm w-65 pl-2 pr-2" style="max-width: 22%;">
-                <div class="card mb-2">
+                <div class="card mb-2" style="display: none;">
                     <h5 class="card-header" onclick="closeEditionImage()">Edição e Tratamento</h5>
                     <div class="collapse show" id="divBodyEditionImage">
                         <div class="card-body p-1">
@@ -75,7 +76,7 @@
 
                 </div>
 
-                <div class="card">
+                <div class="card" style="display: none;">
                     <h5 class="card-header" onclick="closeListImages()">Lista de Imagens</h5>
                     <div class="collapse show" id="divBodyListImages">
                         <div class="card-body p-2">
@@ -112,6 +113,10 @@
                                 id="btnEqp" onclick="loadEquipaments(this)">
                                 Equipamento
                             </button>
+                            <button type="button" class="btn btn-primary ml-2"
+                                id="btnSearch" onclick="loadAllData()">
+                                Pesquisar
+                            </button>
                         </div>
                     </h5>
                     <div class="card-body p-0" style="height: 40.3rem;">
@@ -123,13 +128,27 @@
             <%--INFO--%>
             <div class="col-sm pb-0 pr-2 pl-2" style="max-width: 28%;">
                 <div class="card mb-2 float-right w-100">
-                    <h5 class="card-header" onclick="closeCar()">Veículo</h5>
+                    <h5 class="card-header" style="padding-top: 5px; padding-bottom: 5px; padding-right: 6px;">
+                        <label class="mb-0 align-self-center mr-1 margin-t">Veículo</label>
+                        <div class="row float-right" style="padding-right: 1rem;">
+                            <button type="button" class="btn btn-success"
+                                id="btnAprovar" onclick="validateProcess(true)">
+                                Aprovar
+                            </button>
+                            <button type="button" class="btn btn-danger ml-1"
+                                id="btnReprovar" onclick="validateProcess(false)">
+                                Reprovar
+                            </button>
+                        </div>
+                    </h5>
                     <div class="collapse show" id="divBodyCar">
                         <div class="card-body p-2">
                             <div class="input-group">
-                                <input type="text" class="form-control" id="txtPlaca" placeholder="Placa">
-                                <div class="input-group-append">
-                                    <button class="btn btn-outline-primary" type="button" id="btnSearchPlaca">
+                                <input type="text" class="form-control font-weight-bold text-uppercase"
+                                    id="txtPlaca" placeholder="Placa" style="color: rgb(0 123 255);">
+                                <div class="input-group-append" style="display: none;">
+                                    <button class="btn btn-outline-primary" type="button"
+                                        id="btnSearchPlaca">
                                         <i class="bi bi-search"></i>
                                     </button>
                                 </div>
@@ -184,11 +203,10 @@
                             <div class="row row-cols-2 divider-eqp">
                                 <div class="col input-group-sm pr-0 pl-0">
                                     <label class="mb-0 mt-1">Faixa:</label>
-                                    <br />
                                     <label class="mb-0" id="lblFaixa"></label>
                                     <%--<input type="text" class="form-control" id="txtFaixa" disabled>--%>
                                 </div>
-                                <div class="col input-group-sm">
+                                <div class="col input-group-sm p-0">
                                     <label class="mb-0 mt-1">Velocidade da via:</label>
                                     <label class="mb-0" id="lblVelocidadeViaEqp"></label>
                                     <%--<input type="text" class="form-control"  disabled>--%>
@@ -233,8 +251,12 @@
                                     <label class="mb-0 mt-0" id="lblTempoOcup"></label>
                                 </div>
                                 <div class="col input-group-sm pr-0">
-                                    <label class="mb-0 mt-1">Lote:</label>
-                                    <label class="mb-0 mt-0" id="lblLote"></label>
+                                    <label class="mb-0 mt-1 font-weight-bold" style="color: rgb(220 53 69);">
+                                        Lote:
+                                    </label>
+                                    <label class="mb-0 mt-0 font-weight-bold" id="lblLote"
+                                        style="color: rgb(220 53 69);">
+                                    </label>
                                 </div>
                             </div>
 
@@ -248,7 +270,7 @@
                                     </thead>
                                     <tbody id="tbEnquadramentos">
                                         <tr>
-                                            <td colspan="2">Não há resgistros!</td>
+                                            <td colspan="2">Não há registros!</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -380,7 +402,7 @@
                 url: 'Default.aspx/loadAllData',
                 dataType: 'json',
                 data: JSON.stringify({
-                    idMunicipio: $("#sleMunicipio").find(":selected").text(),
+                    idMunicipio: $("#sleMunicipio").val(),
                     Eqps: eqpsSelecteds
                 }),
                 contentType: "application/json; charset=utf-8",
@@ -390,6 +412,32 @@
                     $("#dvImagens").empty();
 
                     if (data.d.length == 0) {
+
+                        //CARD VEÍCULO
+                        $("#txtPlaca").val("");
+                        //$("#lblMarca")[0].innerHTML = firstIndex.marca;
+
+                        //CARD EQUIPAMENTO
+                        $("#lblMunicipio")[0].innerHTML = "";
+                        $("#lblEndereco")[0].innerHTML = "";
+                        $("#lblFaixa")[0].innerHTML = "";
+                        $("#lblVelocidadeViaEqp")[0].innerHTML = "";
+
+                        //CARD ENQUADRAMENTO
+                        $("#lblDate")[0].innerHTML = "";
+                        $("#lblVelMedida")[0].innerHTML = "";
+                        $("#lblVelConsiderada")[0].innerHTML = "";
+                        $("#lblTamanhoVeiculo")[0].innerHTML = "";
+                        $("#lblTempoSV")[0].innerHTML = "";
+                        $("#lblTempoOcup")[0].innerHTML = "";
+                        $("#lblLote ")[0].innerHTML = "";
+                        $("#hfidProcess ").val("");
+
+                        $("#tbEnquadramentos").empty();
+                        var newRow = $("<tr>");
+                        var cols = `<td colspan='2'>Não há registros!</td>`;
+                        newRow.append(cols);
+                        $("#tbEnquadramentos").append(newRow);
 
                         Swal.fire({
                             text: 'Não há registros!',
@@ -404,63 +452,79 @@
                         $("#divLoading").css("display", "none");
                         return;
                     }
-                    while (data.d[i]) {
-                        var lst = data.d[i];
+                    else {
 
-                        let imagesPending = {
-                            "dtProcess": lst.dtProcess,
-                            "eqp": lst.eqp,
-                            "faixa": lst.faixa,
-                            "id": lst.id,
-                            "infractionDsc": lst.infractionDsc,
-                            "infractionId": lst.infractionId,
-                            "logradouro": lst.logradouro,
-                            "lote": lst.lote,
-                            "mnc": lst.mnc,
-                            "mncDsc": lst.mncDsc,
-                            "numberPlate": lst.numberPlate,
-                            "tamanho": lst.tamanho,
-                            "tempoSV": lst.tempoSV,
-                            "tipoId": lst.tipoId,
-                            "velCons": lst.velCons,
-                            "velMedida": lst.velMedida,
-                            "velVia": lst.velVia,
-                            "tOcup": lst.tOcup,
-                            "infractions": lst.tOcup,
+                        while (data.d[i]) {
+                            var lst = data.d[i];
+
+                            let imagesPending = {
+                                "dtProcess": lst.dtProcess,
+                                "eqp": lst.eqp,
+                                "faixa": lst.faixa,
+                                "id": lst.id,
+                                "infractionDsc": lst.infractionDsc,
+                                "infractionId": lst.infractionId,
+                                "logradouro": lst.logradouro,
+                                "lote": lst.lote,
+                                "mnc": lst.mnc,
+                                "mncDsc": lst.mncDsc,
+                                "numberPlate": lst.numberPlate,
+                                "tamanho": lst.tamanho,
+                                "tempoSV": lst.tempoSV,
+                                "tipoId": lst.tipoId,
+                                "velCons": lst.velCons,
+                                "velMedida": lst.velMedida,
+                                "velVia": lst.velVia,
+                                "tOcup": lst.tOcup,
+                                "infractions": lst.tOcup,
+                                "idProcess": lst.id,
+                            }
+
+                            var ativo = "";
+                            if (i == 0)
+                                ativo = "active";
+
+                            var div = "<div class='carousel-item " + ativo + "'>" +
+                                "<img src='" + lst.arquivo + "' class='d-block w-100' alt='...'></div >";
+                            $("#dvImagens").append(div);
+
+                            listImagesPending = [];
+                            listImagesPending.push(imagesPending);
+                            i++;
                         }
 
-                        var ativo = "";
-                        if (i == 0)
-                            ativo = "active";
+                        var firstIndex = listImagesPending[0];
+                        //CARD VEÍCULO
+                        $("#txtPlaca").val(firstIndex.numberPlate);
+                        //$("#lblMarca")[0].innerHTML = firstIndex.marca;
 
-                        var div = "<div class='carousel-item " + ativo + "'>" +
-                            "<img src='" + lst.arquivo + "' class='d-block w-100' alt='...'></div >";
-                        $("#dvImagens").append(div);
+                        //CARD EQUIPAMENTO
+                        $("#lblMunicipio")[0].innerHTML = firstIndex.mncDsc;
+                        $("#lblEndereco")[0].innerHTML = "Endereço: " + firstIndex.logradouro;
+                        $("#lblFaixa")[0].innerHTML = firstIndex.faixa;
+                        $("#lblVelocidadeViaEqp")[0].innerHTML = firstIndex.velVia + "km/h";
 
-                        listImagesPending.push(imagesPending);
-                        i++;
+                        //CARD ENQUADRAMENTO
+                        $("#lblDate")[0].innerHTML = firstIndex.dtProcess;
+                        $("#lblVelMedida")[0].innerHTML = firstIndex.velMedida;
+                        $("#lblVelConsiderada")[0].innerHTML = firstIndex.velCons;
+                        $("#lblTamanhoVeiculo")[0].innerHTML = firstIndex.tamanho;
+                        $("#lblTempoSV")[0].innerHTML = firstIndex.tempoSV;
+                        $("#lblTempoOcup")[0].innerHTML = firstIndex.tOcup;
+                        $("#lblLote ")[0].innerHTML = firstIndex.lote;
+
+                        $("#hfidProcess ").val(firstIndex.idProcess);
+
+                        $("#tbEnquadramentos").empty();
+                        var newRow = $("<tr>");
+                        var cols = "";
+                        cols += `<td>${firstIndex.infractionId}</td>`;
+                        cols += `<td>${firstIndex.infractionDsc}</td>`;
+                        newRow.append(cols);
+                        $("#tbEnquadramentos").append(newRow);
+
+                        indexImagePending = 0;
                     }
-
-                    var firstIndex = listImagesPending[0];
-                    $("#lblMunicipio")[0].innerHTML = firstIndex.mncDsc;
-                    //$("#lblMarca")[0].innerHTML = firstIndex.marca;
-
-                    $("#lblMunicipio")[0].innerHTML = firstIndex.mncDsc;
-                    $("#lblEndereco")[0].innerHTML = "Endereço: " + firstIndex.logradouro;
-                    $("#lblFaixa")[0].innerHTML = firstIndex.faixa;
-                    $("#lblVelocidadeViaEqp")[0].innerHTML = firstIndex.velVia + "km/h";
-
-
-                    $("#lblDate")[0].innerHTML = firstIndex.dtProcess;
-                    $("#lblVelMedida")[0].innerHTML = firstIndex.velMedida;
-                    $("#lblVelConsiderada")[0].innerHTML = firstIndex.velCons;
-                    $("#lblTamanhoVeiculo")[0].innerHTML = firstIndex.tamanho;
-                    $("#lblTempoSV")[0].innerHTML = firstIndex.tempoSV;
-                    $("#lblTempoOcup")[0].innerHTML = firstIndex.tOcup;
-                    $("#lblLote ")[0].innerHTML = firstIndex.lote;
-
-                    indexImagePending = 0;
-                    loadEnquadramento();
 
                     $("#divLoading").css("display", "none");
                 },
@@ -475,49 +539,6 @@
                             popup: 'animate__flipOutX'
                         }
                     });
-                }
-            });
-        }
-
-        function loadEnquadramento() {
-
-            var adress = "", adressFormated = "";
-            adress = $("#lblEndereco").text();
-            adressFormated = adress.substring(10, adress.length);
-
-            $.ajax({
-                type: 'POST',
-                url: 'Default.aspx/getEnquadramentos',
-                dataType: 'json',
-                data: "{'eqp':'" + $("#lblEquipamento").text() + "', " +
-                    " 'endereco':'" + adressFormated + "', " +
-                    " 'lote':'" + $("#lblLote")[0].innerText + "'}",
-                contentType: "application/json; charset=utf-8",
-                success: function (data) {
-
-                    $("#tbEnquadramentos").empty();
-                    if (data.d.length > 0) {
-                        for (var i = 0; i < data.d.length; i++) {
-
-                            var lst = data.d[i];
-                            var newRow = $("<tr>");
-                            var cols = "";
-                            cols += `<td>${lst.Text}</td>`;
-                            cols += `<td>${lst.Value}</td>`;
-
-                            newRow.append(cols);
-                            $("#tbEnquadramentos").append(newRow);
-                        }
-                    }
-                    else {
-
-                        var newRow = $("<tr>");
-                        var cols = `<td colspan='2'>Não há registros!</td>`;
-                        newRow.append(cols);
-                        $("#tbEnquadramentos").append(newRow);
-                    }
-
-                    $("#divLoading").css("display", "none");
                 }
             });
         }
@@ -604,6 +625,67 @@
                     }
                 });
             }
+        }
+
+        function validateProcess(valid) {
+
+            $("#divLoading").css("display", "block");
+            $.ajax({
+                type: 'POST',
+                url: 'Default.aspx/validateProcess',
+                dataType: 'json',
+                data: JSON.stringify({
+                    idProcess: $("#hfidProcess").val(),
+                    valido: valid,
+                    usuario: $("#hfUserConected").val(),
+                    placa: $("#txtPlaca").val(),
+                    idMotivoRejeicao: "",
+                    obsRejeito: ""
+                }),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    if (data.d == "true") {
+
+                        Swal.fire({
+                            text: 'Avaliado com sucesso!',
+                            showClass: {
+                                popup: 'animate__bounceIn'
+                            },
+                            hideClass: {
+                                popup: 'animate__flipOutX'
+                            }
+                        });
+
+                        loadAllData();
+                    }
+                    else {
+                        Swal.fire({
+                            text: 'Não foi possível avaliar!',
+                            showClass: {
+                                popup: 'animate__bounceIn'
+                            },
+                            hideClass: {
+                                popup: 'animate__flipOutX'
+                            }
+                        });
+                    }
+
+                    $("#divLoading").css("display", "none");
+                },
+                error: function (data) {
+                    $("#divLoading").css("display", "none");
+                    Swal.fire({
+                        text: 'Ocorreu algum erro, atualize a página novamente!',
+                        showClass: {
+                            popup: 'animate__bounceIn'
+                        },
+                        hideClass: {
+                            popup: 'animate__flipOutX'
+                        }
+                    });
+                }
+            });
         }
     </script>
 

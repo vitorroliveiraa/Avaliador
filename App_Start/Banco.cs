@@ -204,12 +204,6 @@ namespace Avaliador
                     cmmd.Dispose();
                     DesconectarDb();
                 }
-                if (b)
-                {
-                    string sql = sSql.Replace("'", "\"");
-                    ExecuteNonQueryAsync(@"Insert Into Sincronizacao (Query,CentralCet,Banco)
-values('" + sql + "','" + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss.fff") + "','Central')");
-                }
             }
             return b;
         }
