@@ -16,28 +16,32 @@ namespace Avaliador.Rejected
         protected void Page_Load(object sender, EventArgs e)
         {
 
-            //string url = Request.QueryString["x"];
+            string url = Request.QueryString["x"];
 
-            //if (string.IsNullOrEmpty(url) == false)
-            //{
-            //    string[] nomeCripto = url.Split('@');
+            if (string.IsNullOrEmpty(url) == false)
+            {
+                string[] nomeCripto = url.Split('@');
 
-            //    string str = "";
-            //    foreach (var item in nomeCripto)
-            //    {
-            //        if (item != "")
-            //            str += Convert.ToChar(Convert.ToInt32(item) - 1);
-            //    }
-            //    MembershipUser usuario = Membership.GetUser(str);
-            //    if (usuario == null)
-            //    {
-            //        hfUserConected.Value = "0";
-            //    }
-            //}
-            //else
-            //{
-            //    hfUserConected.Value = "0";
-            //}
+                string str = "";
+                foreach (var item in nomeCripto)
+                {
+                    if (item != "")
+                        str += Convert.ToChar(Convert.ToInt32(item) - 1);
+                }
+                MembershipUser usuario = Membership.GetUser(str);
+                if (usuario == null)
+                {
+                    hfUserConected.Value = "0";
+                }
+                else
+                {
+                    
+                }
+            }
+            else
+            {
+                hfUserConected.Value = "0";
+            }
         }
 
         [WebMethod]

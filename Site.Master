@@ -132,7 +132,7 @@
                         &copy; Infortronics
                     </label>
                 </div>--%>
-                <div class="w-100">
+                <div class="w-100" id="statusAvaliator" style="display: none;">
                     <div class="float-right">
                         <div class="row">
                             <label class="mb-0 mr-3 font-weight-bold" style="color: rgb(40 167 69);">

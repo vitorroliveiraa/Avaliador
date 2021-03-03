@@ -264,20 +264,20 @@ namespace Avaliador
         [WebMethod]
         public static statusProcess getStatusProcess(string user)
         {
-            statusProcess data = new statusProcess();
+            statusProcess status = new statusProcess();
 
             Banco db = new Banco();
-            data.qtdAprovadas = Convert.ToInt32(db.ExecuteScalarQuery(
+            status.qtdAprovadas = Convert.ToInt32(db.ExecuteScalarQuery(
                 @"SELECT count(0)FROM process WHERE valido='1' AND substring(dtAval,0,11)=CONVERT(CHAR(10),
                 getdate() , 103)  AND usuario='" + user + "'"
                 ));
 
-            data.qtdReprovadas = Convert.ToInt32(db.ExecuteScalarQuery(
+            status.qtdReprovadas = Convert.ToInt32(db.ExecuteScalarQuery(
                 @"SELECT count(0)FROM process WHERE valido='0' AND substring(dtAval,0,11)=CONVERT(CHAR(10),
                 getdate() , 103)  AND usuario='" + user + "'"
                 ));
 
-            data.total = data.qtdAprovadas + data.qtdReprovadas;
+            status.total = status.qtdAprovadas + status.qtdReprovadas;
 
             DataTable dt;
             dt = db.ExecuteReaderQuery(
@@ -298,11 +298,11 @@ namespace Avaliador
                 i++;
             }
 
-            data.pendentes = Convert.ToInt32(db.ExecuteScalarQuery(
+            status.pendentes = Convert.ToInt32(db.ExecuteScalarQuery(
                 @"SELECT count(0) FROM process WHERE mnc in (" + mnc + ") AND flagprocess is null"
                 ));
 
-            return data;
+            return status;
         }
 
         [WebMethod]
