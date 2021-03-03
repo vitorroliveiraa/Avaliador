@@ -168,7 +168,7 @@
                 </div>
             </div>
         </nav>
-
+         
         <div id="divLoading" style="z-index: 99; display: none;">
             <div style="background-color: rgba(132, 132, 132, 0.53); position: fixed; width: 100%; top: 0px; height: 100%; transition: background-color .1s; left: 0px; right: 0px; z-index: 1;">
                 <div style="width: 100%; text-align: center; z-index: 10; height: 55%; position: absolute; margin: auto; top: 0; right: 0; bottom: 0; left: 0;">
