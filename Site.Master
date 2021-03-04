@@ -116,12 +116,12 @@
                 <ul class="navbar-nav pl-4">
                     <li class="nav-item">
                         <a class="nav-link" style="font-size: large; color: rgb(0 0 0);"
-                            href="/Default.aspx">Avaliador
+                            <%--href="/Default.aspx"--%> onclick="openAvaliator()">Avaliador
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" style="font-size: large; color: rgb(0 0 0);"
-                            href="/Rejected/Default.aspx">Reprovados
+                            <%--href="/Rejected/Default.aspx"--%> onclick="openReprovados()">Reprovados
                         </a>
                     </li>
                 </ul>
@@ -188,6 +188,24 @@
             </footer>--%>
         </div>
     </form>
+
+    <script>
+        $(function () {
+
+        });
+
+        function openAvaliator() {
+
+            //window.open("");
+            //location.reload("");
+            window.location.href = '/Default.aspx?x=' + $("#hfUrl").val();
+        }
+
+        function openReprovados() {
+
+            window.location.href = '/Rejected/Default.aspx?x=' + $("#hfUrl").val();
+        }
+    </script>
 </body>
 </html>
 

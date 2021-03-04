@@ -19,6 +19,7 @@ namespace Avaliador
             if (!IsPostBack)
             {
                 string url = Request.QueryString["x"];
+                hfUrl.Value = url;
                 user = "";
                 if (string.IsNullOrEmpty(url) == false)
                 {

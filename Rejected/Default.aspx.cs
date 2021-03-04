@@ -13,29 +13,30 @@ namespace Avaliador.Rejected
 {
     public partial class Default : System.Web.UI.Page
     {
+                string user = "";
         protected void Page_Load(object sender, EventArgs e)
         {
 
             string url = Request.QueryString["x"];
-
+            hfUrl.Value = url;
+            user = "";
             if (string.IsNullOrEmpty(url) == false)
             {
                 string[] nomeCripto = url.Split('@');
 
-                string str = "";
                 foreach (var item in nomeCripto)
                 {
                     if (item != "")
-                        str += Convert.ToChar(Convert.ToInt32(item) - 1);
+                        user += Convert.ToChar(Convert.ToInt32(item) - 1);
                 }
-                MembershipUser usuario = Membership.GetUser(str);
+                MembershipUser usuario = Membership.GetUser(user);
                 if (usuario == null)
                 {
                     hfUserConected.Value = "0";
                 }
                 else
                 {
-                    
+                    hfUserConected.Value = user;
                 }
             }
             else

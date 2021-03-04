@@ -5,6 +5,7 @@
 
     <asp:HiddenField ID="hfUserConected" ClientIDMode="Static" runat="server" />
     <asp:HiddenField ID="hfidProcess" ClientIDMode="Static" runat="server" />
+    <asp:HiddenField ID="hfUrl" ClientIDMode="Static" runat="server" />
 
     <div id="dvHome">
         <div class="container-fluid">

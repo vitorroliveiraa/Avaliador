@@ -4,6 +4,7 @@
     <link href="../ControllersJS/General.css" rel="stylesheet" />
 
     <asp:HiddenField ID="hfUserConected" ClientIDMode="Static" Value="1" runat="server" />
+    <asp:HiddenField ID="hfUrl" ClientIDMode="Static" runat="server" />
 
     <div id="dvHome">
         <div class="container-fluid">
@@ -100,7 +101,7 @@
                             </div>
                         </h5>
                         <div class="card-body p-0" style="height: 40.3rem;">
-                            <div id="carouselImages" class="carousel slide" data-ride="carousel"
+                            <div id="carouselImages" class="carousel" data-ride="carousel"
                                 data-interval="false" data-keyboard="true" data-touch="true">
                                 <div class="carousel-inner" id="dvImagens">
                                 </div>
